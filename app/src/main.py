@@ -16,12 +16,12 @@ class HealthResponse(BaseModel):
 # 2. Lifespan Management
 # DB接続の確立などは将来的にここに記述します
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     # Startup logic
     print("INFO:     Application startup sequence initiated.")
-    
+
     yield
-    
+
     # Shutdown logic
     print("INFO:     Application shutdown sequence initiated.")
 
@@ -44,5 +44,5 @@ app = FastAPI(
 async def health_check() -> HealthResponse:
     return HealthResponse(
         status="ok",
-        message="Server is running correctly with AWS Lambda Web Adapter configuration."
+        message="Server is running.",
     )
