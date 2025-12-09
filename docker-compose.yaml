@@ -1,0 +1,35 @@
+volumes:
+  app-db:
+  app-python-packages:
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./app:/app
+      - app-python-packages:/app/.venv
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+
+  db:
+    image: amazon/dynamodb-local:latest
+    container_name: mock-api-dynamodb
+    ports:
+      - "8042:8000"
+    # -sharedDb: 必須。これがないと接続ごとに別ファイル扱いになることがある
+    # -dbPath: データを /home/dynamodblocal/data に保存するよう指示
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data"
+    volumes:
+      # 2. 作成したボリュームをデータ保存先にマウント
+      - app-db:/home/dynamodblocal/data
+    working_dir: /home/dynamodblocal
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
