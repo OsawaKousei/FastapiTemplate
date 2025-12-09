@@ -41,12 +41,6 @@ select = [
     "ERA",      # eradicate: コメントアウトされたコードの禁止 (クリーンコード)
 ]
 
-# 無視するルール
-ignore = [
-    "ANN101",   # selfの型ヒントは不要 (deprecated)
-    "ANN102",   # clsの型ヒントは不要 (deprecated)
-]
-
 # 3.4 Any型の完全禁止 (デフォルトでは除外されているため明示的に追加)
 extend-select = ["ANN401"]
 
