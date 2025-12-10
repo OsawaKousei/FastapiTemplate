@@ -1,18 +1,26 @@
-import os
 from typing import Any
 
 import boto3
+
+from src.config import get_settings
 
 
 def get_dynamodb_resource() -> Any:  # noqa: ANN401
     """
     DynamoDBリソースを取得する。
-    環境変数 DYNAMODB_ENDPOINT_URL が設定されている場合は、
-    そのエンドポイントを使用する。
+    設定ファイル(src.config)からエンドポイントを取得する。
     """
-    endpoint_url = os.getenv("DYNAMODB_ENDPOINT_URL")
+    settings = get_settings()
+    endpoint_url = settings.dynamodb_endpoint_url
+
     if endpoint_url:
-        return boto3.resource("dynamodb", endpoint_url=endpoint_url)
+        return boto3.resource(
+            "dynamodb",
+            endpoint_url=endpoint_url,
+            region_name=settings.aws_default_region,
+            aws_access_key_id=settings.aws_access_key_id,
+            aws_secret_access_key=settings.aws_secret_access_key,
+        )
     return boto3.resource("dynamodb")
 
 

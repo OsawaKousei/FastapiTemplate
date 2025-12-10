@@ -1,27 +1,22 @@
-import os
 import uuid
 
 import boto3
 import pytest
 
+from src.config import get_settings
 from src.domain.mocks.schemas import HttpMethod, MockEndpoint
 from src.infrastructure.dynamodb.mock_repository import DynamoMockRepository
-
-# Set env var for client.py to pick up
-os.environ["DYNAMODB_ENDPOINT_URL"] = "http://db:8000"
-os.environ["AWS_ACCESS_KEY_ID"] = "dummy"
-os.environ["AWS_SECRET_ACCESS_KEY"] = "dummy"
-os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
 
 
 @pytest.fixture(scope="module")
 def dynamodb_resource():
+    settings = get_settings()
     return boto3.resource(
         "dynamodb",
-        endpoint_url="http://db:8000",
-        region_name="us-east-1",
-        aws_access_key_id="dummy",
-        aws_secret_access_key="dummy",
+        endpoint_url=settings.dynamodb_endpoint_url,
+        region_name=settings.aws_default_region,
+        aws_access_key_id=settings.aws_access_key_id,
+        aws_secret_access_key=settings.aws_secret_access_key,
     )
 
 

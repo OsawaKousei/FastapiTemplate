@@ -67,9 +67,6 @@ def get_repository() -> MockRepository:
 DynamoDB Local が起動している必要があります。
 
 ```bash
-# DB起動 (未起動の場合)
-docker compose up -d db
-
 # テスト実行
 uv run pytest tests/integration/test_dynamodb_repository.py
 ```

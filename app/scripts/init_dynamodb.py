@@ -1,15 +1,22 @@
 import os
+import sys
+
+# Add project root to python path to allow importing src
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import boto3
 from botocore.exceptions import ClientError
+
+from src.config import get_settings
 
 
 def init_dynamodb() -> None:
     """
     Initialize DynamoDB table for local development.
     """
-    endpoint_url = os.getenv("DYNAMODB_ENDPOINT_URL", "http://localhost:8000")
-    region_name = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
+    settings = get_settings()
+    endpoint_url = settings.dynamodb_endpoint_url
+    region_name = settings.aws_default_region
 
     print(f"Connecting to DynamoDB at {endpoint_url}...")
 
@@ -17,8 +24,8 @@ def init_dynamodb() -> None:
         "dynamodb",
         endpoint_url=endpoint_url,
         region_name=region_name,
-        aws_access_key_id="dummy",
-        aws_secret_access_key="dummy",
+        aws_access_key_id=settings.aws_access_key_id,
+        aws_secret_access_key=settings.aws_secret_access_key,
     )
 
     table_name = "MockTable"
