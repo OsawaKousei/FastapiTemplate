@@ -11,7 +11,7 @@ services:
       - ./app:/app
       - app-python-packages:/app/.venv
     ports:
-      - "8000:8000"
+      - "8080:8080"
     networks:
       - app-network
 
@@ -19,7 +19,7 @@ services:
     image: amazon/dynamodb-local:latest
     user: root
     ports:
-      - "8042:8000"
+      - "8000:8000"
     # -sharedDb: 必須。これがないと接続ごとに別ファイル扱いになることがある
     # -dbPath: データを /home/dynamodblocal/data に保存するよう指示
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data"

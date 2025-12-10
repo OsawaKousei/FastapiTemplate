@@ -14,4 +14,4 @@ uv sync --all-extras
 # exec を使用して、現在のシェルプロセスを uvicorn プロセスに置き換える
 # これにより、Ctrl+C や docker stop が即座に効くようになる
 echo "Starting Uvicorn..."
-exec uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+exec uv run uvicorn src.main:app --host 0.0.0.0 --port 8080 --reload
