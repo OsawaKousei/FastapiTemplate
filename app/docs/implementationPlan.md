@@ -27,8 +27,8 @@ This document outlines the development steps for the Serverless Mock API Generat
     - [x] Implement Single Table Design access patterns.
 
 ## Phase 4: Interface & Integration (Architecture Specialist / DomainAndLogic)
-- [ ] **API Router**:
-    - [ ] Implement `domain/mocks/router.py` (Management API).
-    - [ ] Implement Catch-all router for Simulation API.
-- [ ] **Dependency Injection**: Wire `DynamoMockRepository` into Services via `src/dependencies.py`.
-- [ ] **E2E/Integration Tests**: Verify the full flow using `TestClient` and local DynamoDB.
+- [x] **API Router**:
+    - [x] Implement `domain/mocks/router.py` (Management API).
+    - [x] Implement Catch-all router for Simulation API.
+- [x] **Dependency Injection**: Wire `DynamoMockRepository` into Services via `src/dependencies.py`.
+- [x] **E2E/Integration Tests**: Verify the full flow using `TestClient` and local DynamoDB.
