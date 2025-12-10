@@ -102,7 +102,8 @@ async def _execute_simulation(
     # 3. Build response
     match result:
         case Success(sim_result):
-            # If body is string, we might want to return Response directly to avoid extra quoting
+            # If body is string, we might want to return Response directly
+            # to avoid extra quoting
             if isinstance(sim_result.body, str):
                 return Response(
                     content=sim_result.body,

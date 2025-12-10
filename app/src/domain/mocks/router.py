@@ -45,7 +45,7 @@ async def delete_mock(
     result = await service.delete(mock_id)
     match result:
         case Success(True):
-            return None
+            return
         case Failure(MockNotFoundError() as e):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
         case Failure(e):

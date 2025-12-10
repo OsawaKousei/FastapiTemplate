@@ -40,6 +40,7 @@ def get_mock_sim_service(
     template_engine: Annotated[TemplateEngine, Depends(get_template_engine)],
 ) -> MockSimulatorService:
     """
-    Provides an instance of MockSimulatorService with repository and template engine injected.
+    Provides an instance of MockSimulatorService with repository and template engine
+    injected.
     """
     return MockSimulatorService(repo, template_engine)
