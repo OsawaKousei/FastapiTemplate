@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     # DynamoDB
     dynamodb_endpoint_url: str | None = None
 
+    # Database
+    db_type: str = "dynamodb"  # "dynamodb" or "postgres"
+    postgres_dsn: str | None = None
+
     # AWS
     aws_default_region: str = "us-east-1"
     aws_access_key_id: str = "dummy"

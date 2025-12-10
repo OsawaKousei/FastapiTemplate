@@ -2,19 +2,30 @@ from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.config import get_settings
 from src.domain.mocks.repository import MockRepository
 from src.domain.mocks.services import MockManagementService, MockSimulatorService
 from src.domain.mocks.template_engine import TemplateEngine
 from src.infrastructure.dynamodb.mock_repository import DynamoMockRepository
+from src.infrastructure.persistence.postgres.database import get_db_session
+from src.infrastructure.persistence.postgres.repositories.mock_repository import (
+    PostgresMockRepository,
+)
 
 
-@lru_cache
-def get_repository() -> MockRepository:
+async def get_repository(
+    session: Annotated[AsyncSession | None, Depends(get_db_session)],
+) -> MockRepository:
     """
-    Provides a singleton instance of the MockRepository.
-    Uses DynamoMockRepository implementation.
+    Provides an instance of the MockRepository based on configuration.
     """
+    settings = get_settings()
+    if settings.db_type == "postgres":
+        if session is None:
+            raise RuntimeError("Database session is not available")
+        return PostgresMockRepository(session)
     return DynamoMockRepository()
 
 

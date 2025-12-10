@@ -11,6 +11,8 @@ dependencies = [
     "pyyaml>=6.0.0",
     "boto3>=1.42.6",
     "pydantic-settings>=2.12.0",
+    "sqlalchemy>=2.0.45",
+    "asyncpg>=0.31.0",
 ]
 
 [dependency-groups]
