@@ -9,6 +9,7 @@ dependencies = [
     "uvicorn[standard]>=0.38.0",
     "python-json-logger>=2.0.0",
     "pyyaml>=6.0.0",
+    "boto3>=1.42.6",
 ]
 
 [dependency-groups]
@@ -80,7 +81,7 @@ ignore_missing_imports = false    # 型定義がないライブラリをエラ�
 plugins = ["pydantic.mypy"]
 
 # Pydanticモデルに対する厳格な型チェック設定
-[tool.pydantic-mypy]
-init_forbid_extra = true
-init_typed = true
-warn_required_dynamic_aliases = true
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
