@@ -1,12 +1,27 @@
+import logging
+import logging.config
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Awaitable, Callable
 
-from fastapi import FastAPI
+import yaml
+from fastapi import FastAPI, Request, Response
 from pydantic import BaseModel, ConfigDict
+
+from src.shared.logging_utils import generate_request_id, set_request_id
+
+# Load logging configuration
+try:
+    with open("src/logging_config.yaml", "r") as f:
+        config = yaml.safe_load(f)
+        logging.config.dictConfig(config)
+except FileNotFoundError:
+    logging.basicConfig(level=logging.INFO)
+    logging.warning("logging_config.yaml not found, using basic config.")
+
+logger = logging.getLogger("app")
 
 
 # 1. Schema Definition (Minimal Strict Guideline Compliance)
-# 本来は domain/health/schemas.py などに配置しますが、疎通確認用に定義します
 class HealthResponse(BaseModel):
     model_config = ConfigDict(frozen=True)
     status: str
@@ -14,16 +29,15 @@ class HealthResponse(BaseModel):
 
 
 # 2. Lifespan Management
-# DB接続の確立などは将来的にここに記述します
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     # Startup logic
-    print("INFO:     Application startup sequence initiated.")
+    logger.info("Application startup sequence initiated.")
 
     yield
 
     # Shutdown logic
-    print("INFO:     Application shutdown sequence initiated.")
+    logger.info("Application shutdown sequence initiated.")
 
 
 # 3. App Definition
@@ -32,16 +46,29 @@ app = FastAPI(
     description="A serverless API to manage and simulate mock endpoints.",
     version="0.1.0",
     lifespan=lifespan,
-    # Docs URLは本番では無効化することもありますが開発中は有効にします
     docs_url="/docs",
     redoc_url="/redoc",
 )
 
 
-# 4. Root Endpoint (Health Check)
-# AWS Lambda Web Adapterのヘルスチェック用にも機能します
+# 4. Middleware
+@app.middleware("http")
+async def request_id_middleware(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    request_id = request.headers.get("X-Request-ID") or generate_request_id()
+    set_request_id(request_id)
+
+    response = await call_next(request)
+
+    response.headers["X-Request-ID"] = request_id
+    return response
+
+
+# 5. Root Endpoint (Health Check)
 @app.get("/", response_model=HealthResponse)
 async def health_check() -> HealthResponse:
+    logger.info("Health check endpoint called.")
     return HealthResponse(
         status="ok",
         message="Server is running.",
