@@ -7,9 +7,14 @@ DynamoDB を使用した Repository パターンの実装と、ローカル Dyna
 
 ## 2. 実装済みコンポーネント (Implemented Components)
 
+### 2.0 Configuration
+- **Settings**: `src/config.py`
+    - `pydantic-settings` を使用した設定管理。
+    - `.env.local` から環境変数を自動読み込み。
+
 ### 2.1 Infrastructure Layer
 - **Client**: `src/infrastructure/dynamodb/client.py`
-    - 環境変数 `DYNAMODB_ENDPOINT_URL` を参照して接続先を切り替え可能。
+    - `src.config.get_settings()` を使用して接続設定を取得。
 - **Converters**: `src/infrastructure/dynamodb/converters.py`
     - Domain Model <-> DynamoDB Item の相互変換。
 - **Repository**: `src/infrastructure/dynamodb/mock_repository.py`
@@ -32,13 +37,16 @@ DynamoDB を使用した Repository パターンの実装と、ローカル Dyna
 ## 3. Phase 4 (Interface & Integration) に向けた準備
 
 ### 3.1 必要な環境変数
-アプリケーション実行時に以下の環境変数が必要です（特にローカル開発時）。
+`pydantic-settings` を導入したため、ローカル開発時は `.env.local` ファイルで管理します。
+`src/config.py` がこのファイルを自動的に読み込みます。
 
-```bash
-export DYNAMODB_ENDPOINT_URL="http://db:8000"
-export AWS_DEFAULT_REGION="us-east-1"
-export AWS_ACCESS_KEY_ID="dummy"
-export AWS_SECRET_ACCESS_KEY="dummy"
+**`.env.local` (作成済み)**:
+```ini
+DYNAMODB_ENDPOINT_URL="http://db:8000"
+AWS_DEFAULT_REGION="us-east-1"
+AWS_ACCESS_KEY_ID="dummy"
+AWS_SECRET_ACCESS_KEY="dummy"
+LOG_LEVEL="INFO"
 ```
 
 ### 3.2 依存関係注入 (Dependency Injection)
