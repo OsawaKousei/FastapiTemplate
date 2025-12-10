@@ -86,11 +86,10 @@ app.include_router(mocks_router)
 
 
 # 7. Simulation Catch-all Route
-@app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
-async def handle_simulation(
+async def _execute_simulation(
     request: Request,
     path: str,
-    service: Annotated[MockSimulatorService, Depends(get_mock_sim_service)],
+    service: MockSimulatorService,
 ) -> Response:
     # 1. Construct search key
     # FastAPI strips the leading slash from path parameter
@@ -120,3 +119,21 @@ async def handle_simulation(
             raise HTTPException(status_code=404, detail="Mock not found")
         case Failure(e):
             raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/{path:path}")
+async def simulate_get(
+    request: Request,
+    path: str,
+    service: Annotated[MockSimulatorService, Depends(get_mock_sim_service)],
+) -> Response:
+    return await _execute_simulation(request, path, service)
+
+
+@app.api_route("/{path:path}", methods=["POST", "PUT", "DELETE", "PATCH"])
+async def simulate_others(
+    request: Request,
+    path: str,
+    service: Annotated[MockSimulatorService, Depends(get_mock_sim_service)],
+) -> Response:
+    return await _execute_simulation(request, path, service)
