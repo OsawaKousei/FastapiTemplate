@@ -7,10 +7,13 @@ def to_domain(item: dict[str, Any]) -> MockEndpoint:
     """
     DynamoDBのItemをDomain Modelに変換する。
     """
-    # Pydantic V2は辞書からの変換で余分なフィールド(PK, SK等)をデフォルトで無視する設定であればそのまま渡せる。
+    # Pydantic V2は辞書からの変換で余分なフィールド(PK, SK等)をデフォルトで無視する
+    # 設定であればそのまま渡せる。
     # しかし、明示的に必要なフィールドだけ渡すのが安全かもしれないが、
-    # MockEndpointはfrozen=Trueなので、model_validateで余分なフィールドがあるとエラーになる可能性があるか？
-    # ConfigDict(frozen=True) implies extra='forbid' by default? No, default is 'ignore'.
+    # MockEndpointはfrozen=Trueなので、model_validateで余分なフィールドがあると
+    # エラーになる可能性があるか？
+    # ConfigDict(frozen=True) implies extra='forbid' by default?
+    # No, default is 'ignore'.
     # Let's assume 'ignore' for now.
     return MockEndpoint.model_validate(item)
 

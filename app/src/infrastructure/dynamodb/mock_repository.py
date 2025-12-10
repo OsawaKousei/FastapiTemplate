@@ -1,10 +1,8 @@
 import asyncio
-from typing import Any
 
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 
-from src.domain.mocks.repository import MockRepository
 from src.domain.mocks.schemas import HttpMethod, MockEndpoint
 from src.infrastructure.dynamodb.client import get_table
 from src.infrastructure.dynamodb.converters import to_domain, to_item
