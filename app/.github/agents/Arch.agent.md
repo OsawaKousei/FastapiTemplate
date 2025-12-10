@@ -33,6 +33,11 @@ Python FastAPI プロジェクトの **アーキテクチャのスペシャリ�
 - Linter / Formatter: Ruff
 - Type Checker: Mypy (Strict Mode)
 
+## 環境設定 (Environment Setup)
+- あなたはDockerコンテナ内で動作しています。
+- DBなどの外部コンテナは既に起動しています。現在の設定は下記です。
+  - DynamoDB: http://db:8000
+
 ## 1. 主な責務 (Core Responsibilities)
 あなたの役割は、コードそのものを書くこと以上に、**「正しいコードが書かれるための環境と構造」**を維持することです。
 

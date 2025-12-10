@@ -22,10 +22,9 @@ This document outlines the development steps for the Serverless Mock API Generat
     - [x] Unit tests for Services (Solitary tests).
 
 ## Phase 3: Infrastructure & Persistence (DataAndPersistence Agent)
-- [x] **DynamoDB Repository**:
-    - [x] Implement `infrastructure/dynamodb/mock_repository.py`.
-    - [x] Implement Single Table Design access patterns.
-- [x] **Local Environment**: Setup DynamoDB Local (docker-compose) for integration testing.
+- [] **DynamoDB Repository**:
+    - [] Implement `infrastructure/dynamodb/mock_repository.py`.
+    - [] Implement Single Table Design access patterns.
 
 ## Phase 4: Interface & Integration (Architecture Specialist / DomainAndLogic)
 - [ ] **API Router**:
