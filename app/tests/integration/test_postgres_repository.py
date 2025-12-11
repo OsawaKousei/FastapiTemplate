@@ -16,7 +16,7 @@ settings = get_settings()
 DATABASE_URL = settings.postgres_dsn or "postgresql+asyncpg://user:pass@localhost/db"
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 async def async_engine():
     engine = create_async_engine(DATABASE_URL, echo=False)
 
