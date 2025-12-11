@@ -1,5 +1,6 @@
 volumes:
-  app-db:
+  app-dynamodb-data:
+  app-postgres-data:
   app-python-packages:
 
 services:
@@ -15,7 +16,7 @@ services:
     networks:
       - app-network
 
-  db:
+  dynamodb:
     image: amazon/dynamodb-local:latest
     user: root
     ports:
@@ -25,8 +26,22 @@ services:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data"
     volumes:
       # 2. 作成したボリュームをデータ保存先にマウント
-      - app-db:/home/dynamodblocal/data
+      - app-dynamodb-data:/home/dynamodblocal/data
     working_dir: /home/dynamodblocal
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:18
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5433:5432"
+    volumes:
+      - app-postgres-data:/var/lib/postgresql
     networks:
       - app-network
 
