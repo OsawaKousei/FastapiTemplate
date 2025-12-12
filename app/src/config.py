@@ -10,7 +10,12 @@ class Settings(BaseSettings):
     """
 
     # DynamoDB
+    # Lambda環境ではNone（AWS DynamoDBを使用）、ローカル開発では環境変数で指定
     dynamodb_endpoint_url: str | None = None
+
+    # Database
+    db_type: str = "dynamodb"  # "dynamodb" or "postgres"
+    postgres_dsn: str | None = None
 
     # AWS
     aws_default_region: str = "us-east-1"

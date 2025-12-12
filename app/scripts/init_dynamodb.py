@@ -13,6 +13,7 @@ from src.config import get_settings
 def init_dynamodb() -> None:
     """
     Initialize DynamoDB table for local development.
+    Updated to match Multi-Table / Document Model design.
     """
     settings = get_settings()
     endpoint_url = settings.dynamodb_endpoint_url
@@ -32,8 +33,10 @@ def init_dynamodb() -> None:
 
     try:
         table = dynamodb.Table(table_name)
+        # Check if table exists
         table.load()
         print(f"Table '{table_name}' already exists.")
+
         return
     except ClientError:
         pass
@@ -43,27 +46,19 @@ def init_dynamodb() -> None:
     try:
         table = dynamodb.create_table(
             TableName=table_name,
+            # Terraformの設定 (hash_key="method", range_key="path") に合わせる
             KeySchema=[
-                {"AttributeName": "PK", "KeyType": "HASH"},
-                {"AttributeName": "SK", "KeyType": "RANGE"},
+                {"AttributeName": "method", "KeyType": "HASH"},
+                {"AttributeName": "path", "KeyType": "RANGE"},
             ],
+            # AttributeDefinitionsにはキーに使用する属性のみを定義する
             AttributeDefinitions=[
-                {"AttributeName": "PK", "AttributeType": "S"},
-                {"AttributeName": "SK", "AttributeType": "S"},
-                {"AttributeName": "GSI1PK", "AttributeType": "S"},
+                {"AttributeName": "method", "AttributeType": "S"},
+                {"AttributeName": "path", "AttributeType": "S"},
             ],
-            GlobalSecondaryIndexes=[
-                {
-                    "IndexName": "GSI-ID",
-                    "KeySchema": [{"AttributeName": "GSI1PK", "KeyType": "HASH"}],
-                    "Projection": {"ProjectionType": "ALL"},
-                    "ProvisionedThroughput": {
-                        "ReadCapacityUnits": 5,
-                        "WriteCapacityUnits": 5,
-                    },
-                }
-            ],
-            ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
+            # GSI (GlobalSecondaryIndexes) は今回の設計で削除されたため指定しない
+            # Terraformの設定 (billing_mode="PAY_PER_REQUEST") に合わせる
+            BillingMode="PAY_PER_REQUEST",
         )
         table.wait_until_exists()
         print(f"Table '{table_name}' created successfully.")

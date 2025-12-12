@@ -6,7 +6,16 @@ from src.config import get_settings
 from src.main import app
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function", autouse=True)
+def force_dynamodb(monkeypatch):
+    """Ensure the app uses DynamoDB during these tests."""
+    monkeypatch.setenv("DB_TYPE", "dynamodb")
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
+
+
+@pytest.fixture(scope="function")
 def dynamodb_resource():
     settings = get_settings()
     return boto3.resource(
@@ -18,44 +27,33 @@ def dynamodb_resource():
     )
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def setup_table(dynamodb_resource):
     table_name = "MockTable"
     try:
         table = dynamodb_resource.Table(table_name)
         table.load()
         table.delete()
-        table.wait_until_not_exists()
+        table.wait_until_not_exists(WaiterConfig={"Delay": 1, "MaxAttempts": 5})
     except dynamodb_resource.meta.client.exceptions.ResourceNotFoundException:
         pass
 
     table = dynamodb_resource.create_table(
         TableName=table_name,
         KeySchema=[
-            {"AttributeName": "PK", "KeyType": "HASH"},
-            {"AttributeName": "SK", "KeyType": "RANGE"},
+            {"AttributeName": "method", "KeyType": "HASH"},
+            {"AttributeName": "path", "KeyType": "RANGE"},
         ],
         AttributeDefinitions=[
-            {"AttributeName": "PK", "AttributeType": "S"},
-            {"AttributeName": "SK", "AttributeType": "S"},
-            {"AttributeName": "GSI1PK", "AttributeType": "S"},
+            {"AttributeName": "method", "AttributeType": "S"},
+            {"AttributeName": "path", "AttributeType": "S"},
         ],
-        GlobalSecondaryIndexes=[
-            {
-                "IndexName": "GSI-ID",
-                "KeySchema": [{"AttributeName": "GSI1PK", "KeyType": "HASH"}],
-                "Projection": {"ProjectionType": "ALL"},
-                "ProvisionedThroughput": {
-                    "ReadCapacityUnits": 5,
-                    "WriteCapacityUnits": 5,
-                },
-            }
-        ],
-        ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
+        BillingMode="PAY_PER_REQUEST",
     )
-    table.wait_until_exists()
+    table.wait_until_exists(WaiterConfig={"Delay": 1, "MaxAttempts": 10})
     yield
     table.delete()
+    table.wait_until_not_exists(WaiterConfig={"Delay": 1, "MaxAttempts": 5})
 
 
 @pytest.fixture

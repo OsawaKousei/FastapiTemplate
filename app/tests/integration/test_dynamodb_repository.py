@@ -33,7 +33,7 @@ def setup_table(dynamodb_resource):
         # Better to delete and recreate to ensure clean state
         print("Table exists, deleting...")
         table.delete()
-        table.wait_until_not_exists()
+        table.wait_until_not_exists(WaiterConfig={"Delay": 1, "MaxAttempts": 5})
         print("Table deleted.")
     except dynamodb_resource.meta.client.exceptions.ResourceNotFoundException:
         print("Table does not exist.")
@@ -43,32 +43,21 @@ def setup_table(dynamodb_resource):
     table = dynamodb_resource.create_table(
         TableName=table_name,
         KeySchema=[
-            {"AttributeName": "PK", "KeyType": "HASH"},
-            {"AttributeName": "SK", "KeyType": "RANGE"},
+            {"AttributeName": "method", "KeyType": "HASH"},
+            {"AttributeName": "path", "KeyType": "RANGE"},
         ],
         AttributeDefinitions=[
-            {"AttributeName": "PK", "AttributeType": "S"},
-            {"AttributeName": "SK", "AttributeType": "S"},
-            {"AttributeName": "GSI1PK", "AttributeType": "S"},
+            {"AttributeName": "method", "AttributeType": "S"},
+            {"AttributeName": "path", "AttributeType": "S"},
         ],
-        GlobalSecondaryIndexes=[
-            {
-                "IndexName": "GSI-ID",
-                "KeySchema": [{"AttributeName": "GSI1PK", "KeyType": "HASH"}],
-                "Projection": {"ProjectionType": "ALL"},
-                "ProvisionedThroughput": {
-                    "ReadCapacityUnits": 5,
-                    "WriteCapacityUnits": 5,
-                },
-            }
-        ],
-        ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
+        BillingMode="PAY_PER_REQUEST",
     )
-    table.wait_until_exists()
+    table.wait_until_exists(WaiterConfig={"Delay": 1, "MaxAttempts": 10})
     yield table
 
     # Cleanup
     table.delete()
+    table.wait_until_not_exists(WaiterConfig={"Delay": 1, "MaxAttempts": 5})
 
 
 @pytest.mark.asyncio
