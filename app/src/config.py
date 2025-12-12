@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     """
 
     # DynamoDB
-    # Default to local DynamoDB endpoint in dev container
-    dynamodb_endpoint_url: str | None = "http://dynamodb:8000"
+    # Lambda環境ではNone（AWS DynamoDBを使用）、ローカル開発では環境変数で指定
+    dynamodb_endpoint_url: str | None = None
 
     # Database
     db_type: str = "dynamodb"  # "dynamodb" or "postgres"
