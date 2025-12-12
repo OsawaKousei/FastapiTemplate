@@ -10,7 +10,8 @@ class Settings(BaseSettings):
     """
 
     # DynamoDB
-    dynamodb_endpoint_url: str | None = None
+    # Default to local DynamoDB endpoint in dev container
+    dynamodb_endpoint_url: str | None = "http://dynamodb:8000"
 
     # Database
     db_type: str = "dynamodb"  # "dynamodb" or "postgres"
