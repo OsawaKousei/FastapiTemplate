@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -6,23 +8,28 @@ from src.config import Settings, get_settings
 from src.infrastructure.persistence.postgres.models import Base
 from src.main import app
 
-# テスト用の設定
-# 実際のDB接続情報を使用する
-settings = get_settings()
-DATABASE_URL = settings.postgres_dsn or "postgresql+asyncpg://user:pass@localhost/db"
-
 
 @pytest.fixture(scope="module", autouse=True)
 async def setup_postgres_db():
     """
     テスト実行前にPostgreSQLのテーブルを作成し、終了後に削除する
     """
-    engine = create_async_engine(DATABASE_URL, echo=False)
+    os.environ["DB_TYPE"] = "postgres"
+    get_settings.cache_clear()
+
+    settings = get_settings()
+    database_url = (
+        settings.postgres_dsn or "postgresql+asyncpg://user:pass@localhost/db"
+    )
+    engine = create_async_engine(database_url, echo=False)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
     yield
+
+    os.environ["DB_TYPE"] = "dynamodb"
+    get_settings.cache_clear()
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -35,10 +42,15 @@ def client():
     # get_settingsはlru_cacheされているため、cache_clear()が必要かもしれないが、
     # dependency_overridesを使うのが確実
 
+    settings = get_settings()
+    database_url = (
+        settings.postgres_dsn or "postgresql+asyncpg://user:pass@localhost/db"
+    )
+
     def get_test_settings():
         return Settings(
             db_type="postgres",
-            postgres_dsn=DATABASE_URL,
+            postgres_dsn=database_url,
             dynamodb_endpoint_url=settings.dynamodb_endpoint_url,
         )
 

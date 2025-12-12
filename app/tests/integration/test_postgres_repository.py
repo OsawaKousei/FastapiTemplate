@@ -10,15 +10,23 @@ from src.infrastructure.persistence.postgres.repositories.mock_repository import
     PostgresMockRepository,
 )
 
-# テスト用の設定を取得
-settings = get_settings()
-# テスト実行時は必ずPostgreSQLのDSNが必要
-DATABASE_URL = settings.postgres_dsn or "postgresql+asyncpg://user:pass@localhost/db"
+
+@pytest.fixture(scope="function", autouse=True)
+def force_postgres(monkeypatch):
+    """Ensure the tests run against PostgreSQL."""
+    monkeypatch.setenv("DB_TYPE", "postgres")
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
 
 
 @pytest.fixture
 async def async_engine():
-    engine = create_async_engine(DATABASE_URL, echo=False)
+    settings = get_settings()
+    database_url = (
+        settings.postgres_dsn or "postgresql+asyncpg://user:pass@localhost/db"
+    )
+    engine = create_async_engine(database_url, echo=False)
 
     # テーブル作成
     async with engine.begin() as conn:
